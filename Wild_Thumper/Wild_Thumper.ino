@@ -9,6 +9,7 @@ const int voltageInput = 4;
 //long duration, cmA, cmB;
 unsigned long lastComTime;
 unsigned long timeOfCurrentCheck;
+unsigned long lastStatusUpdate;
 
 int motor1Last = 0;
 int motor2Last = 0;
@@ -30,6 +31,7 @@ void setup() {
   lights(true);
   pinMode(voltageInput, INPUT);
   Serial.println("Starting Up");
+  lastStatusUpdate = millis();
 }
 
 void loop() {
@@ -78,18 +80,15 @@ void loop() {
       motor1Last = motor1Value;
       motor2Last = motor2Value;
     }
-
-    logStatus();
   }
   
   if (lastComTime <= millis() - 2000) {
     isConnected = false;
     md.setBrakes(200,200);
     lastComTime = millis()-1000;
-    logStatus();
   }
 
-  if(millis() % 500 == 0) {
+  if(lastStatusUpdate <= millis() - 500) {
     logStatus();
   }
 }
@@ -280,5 +279,6 @@ void logStatus() {
       checkCurrent();
       logTemperature();
       batteryStatus();
+      lastStatusUpdate = millis();
 }
 
