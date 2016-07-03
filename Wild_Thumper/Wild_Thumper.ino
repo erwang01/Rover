@@ -28,7 +28,7 @@ void setup() {
   Serial.flush();
   pinMode(lightPin, OUTPUT);
   md.init();
-  lights(true);
+  lights(false);
   pinMode(voltageInput, INPUT);
   Serial.println("Starting Up");
   lastStatusUpdate = millis();
@@ -47,7 +47,7 @@ void loop() {
     Serial.println("reading from buffer");
     command = Serial.readString();    //get commands
     command.toLowerCase();    //change to lower case
-    Serial.println(command);
+    Serial.println(command + millis());
     isConnected = true;
     lastComTime = millis();
     if (command != commandlast && command.indexOf(",") != -1) {
@@ -80,6 +80,7 @@ void loop() {
       motor1Last = motor1Value;
       motor2Last = motor2Value;
     }
+    lights(false);
   }
   
   if (lastComTime <= millis() - 2000) {
@@ -89,6 +90,7 @@ void loop() {
   }
 
   if(lastStatusUpdate <= millis() - 500) {
+    lights(true);
     logStatus();
   }
 }
