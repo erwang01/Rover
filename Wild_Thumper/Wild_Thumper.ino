@@ -14,8 +14,6 @@ unsigned long lastStatusUpdate;
 int motor1Last = 0;
 int motor2Last = 0;
 
-String commandlast;
-
 //batteryChecker
 const double R1 = 100000.0; // resistance of R1 (100K). R1 is closer to (+) terminal. R1 increases, voltage readin decreases, max voltage of battery increases.
 const double R2 = 100000.0; // resistance of R2 (100K). R2 is closer to (-) terminal. R2 increases, voltage readin increases, max voltage of battery decreases.
@@ -35,30 +33,15 @@ void setup() {
 }
 
 void loop() {
-  String command;      //command, pulled from serial
-  String motor1;    //pwm of Motor 1
-  String motor2;          //pwm of Motor 2
-  int index;           // index, placement of "," which separates motor 1 and motor 2
   int motor1Value = 0;
   int motor2Value = 0;
 
   if (Serial.available() > 0) {     //wait until there are items in buffer
-    delay(10);
     Serial.println("reading from buffer");
-    command = Serial.readString();    //get commands
-    command.toLowerCase();    //change to lower case
-    Serial.println(command + millis());
     isConnected = true;
     lastComTime = millis();
-    if (command != commandlast && command.indexOf(",") != -1) {
-      commandlast = command;
-      index = command.indexOf(",");    //find location of ","
-      motor1 = getString (command, 0, (index)); // takes all characters in command string between pos0 to pos of index
-      motor2 = getString(command,(index+1), command.length()); // takes all caracters in command string from pos of index to end
-      motor1.trim();   //remove white spaces
-      motor2.trim();
-      motor1Value = motor1.toInt();
-      motor2Value = motor2.toInt();
+      motor1Value = Serial.parseInt();
+      motor2Value = Serial.parseInt();
 
       //constrain motor values down to -400 to 400
       motor1Value = constrain(motor1Value, -400, 400);
@@ -79,8 +62,6 @@ void loop() {
       }
       motor1Last = motor1Value;
       motor2Last = motor2Value;
-    }
-    lights(false);
   }
   
   if (lastComTime <= millis() - 2000) {
@@ -90,8 +71,8 @@ void loop() {
   }
 
   if(lastStatusUpdate <= millis() - 500) {
-    lights(true);
     logStatus();
+    Serial.println(millis());
   }
 }
 
